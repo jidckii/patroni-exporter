@@ -12,10 +12,10 @@ import (
 )
 
 var metricState = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-	Name: "patroni_state", Help: "Current Patroni state"}, []string {"state"})
+	Name: "patroni_state", Help: "Current Patroni state"}, []string{"state"})
 
 var metricRole = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-	Name: "patroni_role", Help: "Current database role"}, []string {"role"})
+	Name: "patroni_role", Help: "Current database role"}, []string{"role"})
 
 var metricXlogReceivedLocation = prometheus.NewGauge(prometheus.GaugeOpts{
 	Name: "patroni_xlog_received_location", Help: "Current xlog received location"})
@@ -29,16 +29,16 @@ type XlogStatus struct {
 }
 
 type PatroniStatus struct {
-	State string `json:"state"`
-	Role string `json:"role"`
-	Xlog XlogStatus `json:"xlog"`
+	State string     `json:"state"`
+	Role  string     `json:"role"`
+	Xlog  XlogStatus `json:"xlog"`
 }
 
-var POSSIBLE_STATES = []string {"running", "rejecting connections", "not responding", "unknown"}
+var POSSIBLE_STATES = []string{"running", "rejecting connections", "not responding", "unknown"}
 
 func setState(status PatroniStatus) {
 	for _, state := range POSSIBLE_STATES {
-		if(status.State == state) {
+		if status.State == state {
 			metricState.WithLabelValues(state).Set(1)
 		} else {
 			metricState.WithLabelValues(state).Set(0)
@@ -46,11 +46,11 @@ func setState(status PatroniStatus) {
 	}
 }
 
-var POSSIBLE_ROLES = []string {"master", "replica"}
+var POSSIBLE_ROLES = []string{"master", "replica"}
 
 func setRole(status PatroniStatus) {
 	for _, role := range POSSIBLE_ROLES {
-		if(status.Role == role) {
+		if status.Role == role {
 			metricRole.WithLabelValues(role).Set(1)
 		} else {
 			metricRole.WithLabelValues(role).Set(0)
@@ -92,7 +92,7 @@ func updateMetrics(httpClient http.Client, url string) {
 
 func updateLoop() {
 	url := "http://localhost:8008/patroni"
-	httpClient := http.Client{ Timeout: time.Second * 2 }
+	httpClient := http.Client{Timeout: time.Second * 2}
 
 	for {
 		updateMetrics(httpClient, url)
