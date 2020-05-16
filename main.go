@@ -66,9 +66,15 @@ func setRole(status PatroniStatus) {
 }
 
 func setXlogMetrics(status PatroniStatus) {
-	metricXlogLocation.WithLabelValues(status.Role).Set(status.Xlog.Location)
-	metricXlogReceivedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReceivedLocation)
-	metricXlogReplayedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReplayedLocation)
+	if status.Role == "master" {
+		metricXlogLocation.WithLabelValues(status.Role).Set(status.Xlog.Location)
+		metricXlogReceivedLocation.WithLabelValues(status.Role).Set(0)
+		metricXlogReplayedLocation.WithLabelValues(status.Role).Set(0)
+	} else {
+		metricXlogLocation.WithLabelValues(status.Role).Set(0)
+		metricXlogReceivedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReceivedLocation)
+		metricXlogReplayedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReplayedLocation)
+	}
 }
 
 func updateMetrics(httpClient http.Client, url string) {
