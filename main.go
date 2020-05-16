@@ -17,11 +17,11 @@ var metricState = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 var metricRole = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 	Name: "patroni_role", Help: "Current database role"}, []string{"role"})
 
-var metricXlogReceivedLocation = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "patroni_xlog_received_location", Help: "Current xlog received location"})
+var metricXlogReceivedLocation = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	Name: "patroni_xlog_received_location", Help: "Current xlog received location"}, []string{"role"})
 
-var metricXlogReplayedLocation = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "patroni_xlog_replayed_location", Help: "Current xlog replayed location"})
+var metricXlogReplayedLocation = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	Name: "patroni_xlog_replayed_location", Help: "Current xlog replayed location"}, []string{"role"})
 
 type XlogStatus struct {
 	ReceivedLocation float64 `json:"received_location"`
@@ -59,8 +59,8 @@ func setRole(status PatroniStatus) {
 }
 
 func setXlogMetrics(status PatroniStatus) {
-	metricXlogReceivedLocation.Set(status.Xlog.ReceivedLocation)
-	metricXlogReplayedLocation.Set(status.Xlog.ReplayedLocation)
+	metricXlogReceivedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReceivedLocation)
+	metricXlogReplayedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReplayedLocation)
 }
 
 func updateMetrics(httpClient http.Client, url string) {
