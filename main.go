@@ -68,10 +68,10 @@ func setRole(status PatroniStatus) {
 func setXlogMetrics(status PatroniStatus) {
 	if status.Role == "master" {
 		metricXlogLocation.WithLabelValues(status.Role).Set(status.Xlog.Location)
-		metricXlogReceivedLocation.WithLabelValues(status.Role).Set(0)
-		metricXlogReplayedLocation.WithLabelValues(status.Role).Set(0)
+		metricXlogReceivedLocation.DeleteLabelValues("replica")
+		metricXlogReplayedLocation.DeleteLabelValues("replica")
 	} else {
-		metricXlogLocation.WithLabelValues(status.Role).Set(0)
+		metricXlogLocation.DeleteLabelValues("master")
 		metricXlogReceivedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReceivedLocation)
 		metricXlogReplayedLocation.WithLabelValues(status.Role).Set(status.Xlog.ReplayedLocation)
 	}
