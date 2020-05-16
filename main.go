@@ -110,5 +110,5 @@ func main() {
 	go updateLoop()
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":2112", nil)
+	http.ListenAndServe(":9394", nil)
 }
