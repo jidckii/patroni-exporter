@@ -48,7 +48,7 @@ func setState(status PatroniStatus) {
 		if status.State == state {
 			metricState.WithLabelValues(state).Set(1)
 		} else {
-			metricState.WithLabelValues(state).Set(0)
+			metricState.DeleteLabelValues(state)
 		}
 	}
 }
@@ -60,7 +60,7 @@ func setRole(status PatroniStatus) {
 		if status.Role == role {
 			metricRole.WithLabelValues(role).Set(1)
 		} else {
-			metricRole.WithLabelValues(role).Set(0)
+			metricRole.DeleteLabelValues(role)
 		}
 	}
 }
