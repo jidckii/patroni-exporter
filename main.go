@@ -85,7 +85,8 @@ func updateMetrics(httpClient http.Client, url string) {
 
 	res, getErr := httpClient.Do(req)
 	if getErr != nil {
-		log.Fatal(getErr)
+		log.Print(getErr)
+		return;
 	}
 
 	body, readErr := ioutil.ReadAll(res.Body)
