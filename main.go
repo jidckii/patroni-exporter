@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,6 +10,11 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	url  = flag.String("url", "http://localhost:8008/patroni", "URL to patroni")
+	bind = flag.String("bind", ":9394", "Bind host:port")
 )
 
 var metricState = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -86,7 +92,7 @@ func updateMetrics(httpClient http.Client, url string) {
 	res, getErr := httpClient.Do(req)
 	if getErr != nil {
 		log.Print(getErr)
-		return;
+		return
 	}
 
 	body, readErr := ioutil.ReadAll(res.Body)
@@ -105,8 +111,7 @@ func updateMetrics(httpClient http.Client, url string) {
 	setXlogMetrics(status)
 }
 
-func updateLoop() {
-	url := "http://localhost:8008/patroni"
+func updateLoop(url string) {
 	httpClient := http.Client{Timeout: time.Second * 2}
 
 	for {
@@ -117,14 +122,15 @@ func updateLoop() {
 }
 
 func main() {
+	flag.Parse()
 	prometheus.MustRegister(metricState)
 	prometheus.MustRegister(metricRole)
 	prometheus.MustRegister(metricXlogLocation)
 	prometheus.MustRegister(metricXlogReceivedLocation)
 	prometheus.MustRegister(metricXlogReplayedLocation)
 
-	go updateLoop()
+	go updateLoop(*url)
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":9394", nil)
+	http.ListenAndServe(*bind, nil)
 }
